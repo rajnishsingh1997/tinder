@@ -1,8 +1,11 @@
 const express = require("express");
+const authRouter = require("./routes/auth");
+const connectionToDatabase = require("./config/database");
 const app = express();
 const port = 3000;
 
-const connectionToDatabase = require("./config/database");
+app.use(express.json());
+app.use("/", authRouter);
 
 connectionToDatabase()
   .then(() => {
