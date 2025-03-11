@@ -54,4 +54,24 @@ authRouter.post("/signup", async (req, res) => {
   }
 });
 
+authRouter.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  const isUserPresent = await UserModal.findOne({ email: email });
+
+  if (!isUserPresent) {
+    res.status(401).json({
+      message: "Invalid Credentials",
+    });
+  }
+  const passwordMatch = await bcrypt.compare(password, isUserPresent.password);
+  if (!passwordMatch) {
+    return res.status(401).json({
+      message: "Invalid Credentials",
+    });
+  }
+  res.status(200).json({
+    message: "User is logged in now",
+  });
+});
+
 module.exports = authRouter;
