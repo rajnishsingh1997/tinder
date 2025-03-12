@@ -1,5 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
 const authRouter = express.Router();
 const UserModal = require("../model/user");
 const {
@@ -56,21 +58,31 @@ authRouter.post("/signup", async (req, res) => {
 
 authRouter.post("/login", async (req, res) => {
   const { email, password } = req.body;
-  const isUserPresent = await UserModal.findOne({ email: email });
+  const data = await UserModal.findOne({ email: email });
 
-  if (!isUserPresent) {
+  if (!data) {
     res.status(401).json({
       message: "Invalid Credentials",
     });
   }
-  const passwordMatch = await bcrypt.compare(password, isUserPresent.password);
+  const passwordMatch = await bcrypt.compare(password, data.password);
   if (!passwordMatch) {
     return res.status(401).json({
       message: "Invalid Credentials",
     });
   }
+
+  const token = jwt.sign({ userId: data._id }, "RandomPassword", {
+    expiresIn: "8h",
+  });
+
+  res.cookie("authToken", token, {
+    expires: new Date(Date.now() + 8 * 60 * 60 * 1000),
+  });
+
   res.status(200).json({
     message: "User is logged in now",
+    data,
   });
 });
 
