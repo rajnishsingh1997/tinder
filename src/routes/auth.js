@@ -57,33 +57,39 @@ authRouter.post("/signup", async (req, res) => {
 });
 
 authRouter.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-  const data = await UserModal.findOne({ email: email });
+  try {
+    const { email, password } = req.body;
+    const data = await UserModal.findOne({ email: email });
 
-  if (!data) {
-    res.status(401).json({
-      message: "Invalid Credentials",
+    if (!data) {
+      res.status(401).json({
+        message: "Invalid Credentials",
+      });
+    }
+    const passwordMatch = await bcrypt.compare(password, data.password);
+    if (!passwordMatch) {
+      return res.status(401).json({
+        message: "Invalid Credentials",
+      });
+    }
+
+    const token = jwt.sign({ userId: data._id }, "RandomPassword", {
+      expiresIn: "8h",
+    });
+
+    res.cookie("authToken", token, {
+      expires: new Date(Date.now() + 8 * 60 * 60 * 1000),
+    });
+
+    res.status(200).json({
+      message: "User is logged in now",
+      data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
     });
   }
-  const passwordMatch = await bcrypt.compare(password, data.password);
-  if (!passwordMatch) {
-    return res.status(401).json({
-      message: "Invalid Credentials",
-    });
-  }
-
-  const token = jwt.sign({ userId: data._id }, "RandomPassword", {
-    expiresIn: "8h",
-  });
-
-  res.cookie("authToken", token, {
-    expires: new Date(Date.now() + 8 * 60 * 60 * 1000),
-  });
-
-  res.status(200).json({
-    message: "User is logged in now",
-    data,
-  });
 });
 
 module.exports = authRouter;
