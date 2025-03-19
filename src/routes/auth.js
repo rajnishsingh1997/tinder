@@ -13,7 +13,6 @@ const {
 authRouter.post("/signup", async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
-
     const allFieldPresent = validateSignupData(req.body);
     const isUserEmailValid = isEmailValid(email);
     const isFirstAndLastNameProvided = isNameProvided(firstName, lastName);
@@ -59,21 +58,20 @@ authRouter.post("/signup", async (req, res) => {
 authRouter.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const data = await UserModal.findOne({ email: email });
-
-    if (!data) {
-      res.status(401).json({
+    const user = await UserModal.findOne({ email: email });
+    if (!user) {
+      return res.status(401).json({
         message: "Invalid Credentials",
       });
     }
-    const passwordMatch = await bcrypt.compare(password, data.password);
+    const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       return res.status(401).json({
         message: "Invalid Credentials",
       });
     }
 
-    const token = jwt.sign({ userId: data._id }, "RandomPassword", {
+    const token = jwt.sign({ userId: user._id }, "RandomPassword", {
       expiresIn: "8h",
     });
 
@@ -83,7 +81,7 @@ authRouter.post("/login", async (req, res) => {
 
     res.status(200).json({
       message: "User is logged in now",
-      data,
+      user,
     });
   } catch (error) {
     res.status(500).json({

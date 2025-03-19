@@ -31,13 +31,9 @@ const userSchema = mongoose.Schema({
   },
   gender: {
     type: String,
-    enum: {
-      values: ["male", "female", "other"],
-      message: "enum validator failed for path `{PATH}` with value `{VALUE}`",
-    },
   },
 });
 
 const User = mongoose.model("UserModal", userSchema);
 
-module.exports = User;
+module.exports =User;
