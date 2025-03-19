@@ -7,9 +7,8 @@ const userRoute = express.Router();
 userRoute.get("/profile", async (req, res) => {
   try {
     const { authToken } = req.cookies;
-
     if (!authToken) {
-      res.status(401).json({
+      return res.status(401).json({
         message: "Invalid token, please login",
       });
     }
