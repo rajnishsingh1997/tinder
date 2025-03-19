@@ -28,12 +28,24 @@ const userSchema = mongoose.Schema({
   },
   skills: {
     type: [String],
+    validate: {
+      validator: function (value) {
+        return value.length <= 5;
+      },
+      message: `Please add upto 5 skills`,
+    },
   },
   gender: {
     type: String,
+    validate: {
+      validator: function (value) {
+        return ["male", "female", "others"].includes(value);
+      },
+      message: `{VALUE} is not valid gender type`,
+    },
   },
 });
 
 const User = mongoose.model("UserModal", userSchema);
 
-module.exports =User;
+module.exports = User;
