@@ -4,6 +4,7 @@ const ConnectionModal = require("../model/connectionRequestModal");
 const {
   validateStatus,
   validateUser,
+  validateReviewRequestStatus,
 } = require("../utils/validationConnectionRequest");
 const connectionRequestRouter = express.Router();
 
@@ -51,6 +52,40 @@ connectionRequestRouter.post(
       res.status(200).json({
         message: "connection request sent",
       });
+    } catch (error) {
+      res.status(500).json({
+        message: error.message,
+      });
+    }
+  }
+);
+
+connectionRequestRouter.post(
+  "/request/review/:status",
+  userAuthCheckMiddleWare,
+  async (req, res) => {
+    try {
+      const { status } = req.params;
+      const loggedInUser = req.user;
+      const { _id } = loggedInUser;
+      const isStatusValid = validateReviewRequestStatus(status);
+
+      if (!isStatusValid) {
+        return res.status(400).json({
+          message: "invalid status code",
+        });
+      }
+
+      const findConnectionRequest = await ConnectionModal.find({
+        toUserId: _id,
+        status: "interested",
+      });
+      
+      if (findConnectionRequest.length === 0) {
+        return res.status(404).json({
+          message: "No request found",
+        });
+      }
     } catch (error) {
       res.status(500).json({
         message: error.message,

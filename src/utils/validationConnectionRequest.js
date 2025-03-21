@@ -6,8 +6,13 @@ function validateStatus(str) {
   return allowedStatus.includes(str);
 }
 
-async function validateUser(userId) {
-  return  mongoose.Types.ObjectId.isValid(userId);
+function validateReviewRequestStatus(str) {
+  const allowedStatus = ["interested", "accepted"];
+  return allowedStatus.includes(str);
 }
 
-module.exports = { validateStatus, validateUser };
+async function validateUser(userId) {
+  return mongoose.Types.ObjectId.isValid(userId);
+}
+
+module.exports = { validateStatus, validateUser, validateReviewRequestStatus };
