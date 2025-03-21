@@ -1,6 +1,7 @@
 const express = require("express");
 const authRouter = require("./routes/auth");
 const userRoute = require("./routes/user");
+const connectionRequestRouter = require("./routes/connectionRequest");
 const cookieParser = require("cookie-parser");
 
 const connectionToDatabase = require("./config/database");
@@ -9,7 +10,7 @@ const port = 3000;
 
 app.use(express.json());
 app.use(cookieParser());
-app.use("/", authRouter, userRoute);
+app.use("/", authRouter, userRoute, connectionRequestRouter);
 
 connectionToDatabase()
   .then(() => {
